@@ -130,11 +130,21 @@ class GlobalBestPSO(SwarmBase):
         -------
         tuple
             the global best cost and the global best position.
+
+        Notes
+        -----
+        Optimization can be interupted by returning a single :code:`None` from
+        the :code:`objective_func`.
         """
         for i in xrange(iters):
             # Compute cost for current position and personal best
             current_cost = objective_func(self.pos)
             pbest_cost = objective_func(self.personal_best_pos)
+
+            # objective_func has called for optimization to terminate
+            logging.info("current_cost = %s", current_cost)
+            if current_cost is None or pbest_cost is None:
+                break
 
             # Update personal bests if the current position is better
             # Create 1-D mask then update pbest_cost
@@ -146,7 +156,7 @@ class GlobalBestPSO(SwarmBase):
                                               self.pos)
 
             # Get the minima of the pbest and check if it's less than
-            # the saved gbest
+            # the saved pbest
             if np.min(pbest_cost) < self.best_cost:
                 self.best_cost = np.min(pbest_cost)
                 self.best_pos = self.personal_best_pos[np.argmin(pbest_cost)]
